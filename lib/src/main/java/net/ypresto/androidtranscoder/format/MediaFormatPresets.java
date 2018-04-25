@@ -33,7 +33,7 @@ public class MediaFormatPresets {
         MediaFormat format = MediaFormat.createVideoFormat("video/avc", 960, 540);
         format.setInteger(MediaFormat.KEY_BIT_RATE, 5500 * 1000);
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-        format.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
+        format.setInteger(MediaFormat.KEY_FRAME_RATE, 24);
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
         return format;
     }
@@ -73,7 +73,7 @@ public class MediaFormatPresets {
         MediaFormat format = MediaFormat.createVideoFormat("video/avc", width, height);
         format.setInteger(MediaFormat.KEY_BIT_RATE, 5500 * 1000);
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-        format.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
+        format.setInteger(MediaFormat.KEY_FRAME_RATE, 24);
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
         return format;
     }

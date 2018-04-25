@@ -16,14 +16,6 @@
 package net.ypresto.androidtranscoder.format;
 
 public class MediaFormatStrategyPresets {
-    public static final int AUDIO_BITRATE_AS_IS = -1;
-    public static final int AUDIO_CHANNELS_AS_IS = -1;
-
-    /**
-     * @deprecated Use {@link #createExportPreset960x540Strategy()}.
-     */
-    @Deprecated
-    public static final MediaFormatStrategy EXPORT_PRESET_960x540 = new ExportPreset960x540Strategy();
 
     /**
      * Preset based on Nexus 4 camera recording with 720p quality.
@@ -57,15 +49,6 @@ public class MediaFormatStrategyPresets {
      */
     public static MediaFormatStrategy createAndroid720pStrategy(int bitrate, int audioBitrate, int audioChannels) {
         return new Android720pFormatStrategy(bitrate, audioBitrate, audioChannels);
-    }
-
-    /**
-     * Preset similar to iOS SDK's AVAssetExportPreset960x540.
-     * Note that encoding resolutions of this preset are not supported in all devices e.g. Nexus 4.
-     * On unsupported device encoded video stream will be broken without any exception.
-     */
-    public static MediaFormatStrategy createExportPreset960x540Strategy() {
-        return new ExportPreset960x540Strategy();
     }
 
     private MediaFormatStrategyPresets() {

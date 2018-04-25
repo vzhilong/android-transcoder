@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import net.ypresto.androidtranscoder.engine.MediaTranscoderEngine;
+import net.ypresto.androidtranscoder.engine.OutputSurfaceFactory;
 import net.ypresto.androidtranscoder.format.MediaFormatPresets;
 import net.ypresto.androidtranscoder.format.MediaFormatStrategy;
 
@@ -71,10 +72,10 @@ public class MediaTranscoder {
      * @param inFileDescriptor FileDescriptor for input.
      * @param outPath          File path for output.
      * @param listener         Listener instance for callback.
-     * @deprecated Use {@link #transcodeVideo(FileDescriptor, String, MediaFormatStrategy, MediaTranscoder.Listener)} which accepts output video format.
+     * @deprecated Use {@link #transcodeVideo(FileDescriptor, String, MediaFormatStrategy, OutputSurfaceFactory, MediaTranscoder.Listener)} which accepts output video format.
      */
     @Deprecated
-    public Future<Void> transcodeVideo(final FileDescriptor inFileDescriptor, final String outPath, final Listener listener) {
+    public Future<Void> transcodeVideo(final FileDescriptor inFileDescriptor, final String outPath, final OutputSurfaceFactory outputSurfaceFactory, final Listener listener) {
         return transcodeVideo(inFileDescriptor, outPath, new MediaFormatStrategy() {
             @Override
             public MediaFormat createVideoOutputFormat(MediaFormat inputFormat) {
@@ -85,7 +86,7 @@ public class MediaTranscoder {
             public MediaFormat createAudioOutputFormat(MediaFormat inputFormat) {
                 return null;
             }
-        }, listener);
+        }, outputSurfaceFactory, listener);
     }
 
     /**
@@ -98,7 +99,7 @@ public class MediaTranscoder {
      * @param listener          Listener instance for callback.
      * @throws IOException if input file could not be read.
      */
-    public Future<Void> transcodeVideo(final String inPath, final String outPath, final MediaFormatStrategy outFormatStrategy, final Listener listener) throws IOException {
+    public Future<Void> transcodeVideo(final String inPath, final String outPath, final MediaFormatStrategy outFormatStrategy, final OutputSurfaceFactory outputSurfaceFactory, final Listener listener) throws IOException {
         FileInputStream fileInputStream = null;
         FileDescriptor inFileDescriptor;
         try {
@@ -115,38 +116,39 @@ public class MediaTranscoder {
             throw e;
         }
         final FileInputStream finalFileInputStream = fileInputStream;
-        return transcodeVideo(inFileDescriptor, outPath, outFormatStrategy, new Listener() {
-            @Override
-            public void onTranscodeProgress(double progress) {
-                listener.onTranscodeProgress(progress);
-            }
+        return transcodeVideo(inFileDescriptor, outPath, outFormatStrategy, outputSurfaceFactory,
+                new Listener() {
+                    @Override
+                    public void onTranscodeProgress(double progress) {
+                        listener.onTranscodeProgress(progress);
+                    }
 
-            @Override
-            public void onTranscodeCompleted() {
-                closeStream();
-                listener.onTranscodeCompleted();
-            }
+                    @Override
+                    public void onTranscodeCompleted() {
+                        closeStream();
+                        listener.onTranscodeCompleted();
+                    }
 
-            @Override
-            public void onTranscodeCanceled() {
-                closeStream();
-                listener.onTranscodeCanceled();
-            }
+                    @Override
+                    public void onTranscodeCanceled() {
+                        closeStream();
+                        listener.onTranscodeCanceled();
+                    }
 
-            @Override
-            public void onTranscodeFailed(Exception exception) {
-                closeStream();
-                listener.onTranscodeFailed(exception);
-            }
+                    @Override
+                    public void onTranscodeFailed(Exception exception) {
+                        closeStream();
+                        listener.onTranscodeFailed(exception);
+                    }
 
-            private void closeStream() {
-                try {
-                    finalFileInputStream.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "Can't close input stream: ", e);
-                }
-            }
-        });
+                    private void closeStream() {
+                        try {
+                            finalFileInputStream.close();
+                        } catch (IOException e) {
+                            Log.e(TAG, "Can't close input stream: ", e);
+                        }
+                    }
+                });
     }
 
     /**
@@ -158,7 +160,7 @@ public class MediaTranscoder {
      * @param outFormatStrategy Strategy for output video format.
      * @param listener          Listener instance for callback.
      */
-    public Future<Void> transcodeVideo(final FileDescriptor inFileDescriptor, final String outPath, final MediaFormatStrategy outFormatStrategy, final Listener listener) {
+    public Future<Void> transcodeVideo(final FileDescriptor inFileDescriptor, final String outPath, final MediaFormatStrategy outFormatStrategy, final OutputSurfaceFactory outputSurfaceFactory, final Listener listener) {
         Looper looper = Looper.myLooper();
         if (looper == null) looper = Looper.getMainLooper();
         final Handler handler = new Handler(looper);
@@ -181,7 +183,7 @@ public class MediaTranscoder {
                         }
                     });
                     engine.setDataSource(inFileDescriptor);
-                    engine.transcodeVideo(outPath, outFormatStrategy);
+                    engine.transcodeVideo(outPath, outFormatStrategy, outputSurfaceFactory);
                 } catch (IOException e) {
                     Log.w(TAG, "Transcode failed: input file (fd: " + inFileDescriptor.toString() + ") not found"
                             + " or could not open output file ('" + outPath + "') .", e);
@@ -240,7 +242,7 @@ public class MediaTranscoder {
         /**
          * Called when transcode failed.
          *
-         * @param exception Exception thrown from {@link MediaTranscoderEngine#transcodeVideo(String, MediaFormatStrategy)}.
+         * @param exception Exception thrown from {@link MediaTranscoderEngine#transcodeVideo(String, MediaFormatStrategy, OutputSurfaceFactory)}.
          *                  Note that it IS NOT {@link java.lang.Throwable}. This means {@link java.lang.Error} won't be caught.
          */
         void onTranscodeFailed(Exception exception);

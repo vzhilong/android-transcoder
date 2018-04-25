@@ -3,11 +3,9 @@ package net.ypresto.androidtranscoder.example;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
-import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +14,9 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import net.ypresto.androidtranscoder.MediaTranscoder;
+import net.ypresto.androidtranscoder.engine.OutputSurface;
+import net.ypresto.androidtranscoder.engine.OutputSurfaceFactory;
+import net.ypresto.androidtranscoder.engine.OutputSurfaceImpl;
 import net.ypresto.androidtranscoder.format.MediaFormatStrategyPresets;
 
 import java.io.File;
@@ -94,10 +95,10 @@ public class TranscoderActivity extends Activity {
                         public void onTranscodeCompleted() {
                             Log.d(TAG, "transcoding took " + (SystemClock.uptimeMillis() - startTime) + "ms");
                             onTranscodeFinished(true, "transcoded file placed on " + file, parcelFileDescriptor);
-                            Uri uri = FileProvider.getUriForFile(TranscoderActivity.this, FILE_PROVIDER_AUTHORITY, file);
-                            startActivity(new Intent(Intent.ACTION_VIEW)
-                                    .setDataAndType(uri, "video/mp4")
-                                    .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION));
+//                            Uri uri = FileProvider.getUriForFile(TranscoderActivity.this, FILE_PROVIDER_AUTHORITY, file);
+//                            startActivity(new Intent(Intent.ACTION_VIEW)
+//                                    .setDataAndType(uri, "video/mp4")
+//                                    .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION));
                         }
 
                         @Override
@@ -112,7 +113,13 @@ public class TranscoderActivity extends Activity {
                     };
                     Log.d(TAG, "transcoding into " + file);
                     mFuture = MediaTranscoder.getInstance().transcodeVideo(fileDescriptor, file.getAbsolutePath(),
-                            MediaFormatStrategyPresets.createAndroid720pStrategy(8000 * 1000, 128 * 1000, 1), listener);
+                            MediaFormatStrategyPresets.createAndroid720pStrategy(720 * 1280, 44100, 1),
+                            new OutputSurfaceFactory() {
+                                @Override
+                                public OutputSurface createOutputSurface() {
+                                    return new OutputSurfaceImpl();
+                                }
+                            }, listener);
                     switchButtonEnabled(true);
                 }
                 break;

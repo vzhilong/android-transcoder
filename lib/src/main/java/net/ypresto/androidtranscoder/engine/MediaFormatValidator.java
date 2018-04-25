@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 
 class MediaFormatValidator {
     // Refer: http://en.wikipedia.org/wiki/H.264/MPEG-4_AVC#Profiles
-    private static final byte PROFILE_IDC_BASELINE = 66;
+//    private static final byte PROFILE_IDC_BASELINE = 66;
 
     public static void validateVideoOutputFormat(MediaFormat format) {
         String mime = format.getString(MediaFormat.KEY_MIME);
@@ -34,11 +34,11 @@ class MediaFormatValidator {
         if (!MediaFormatExtraConstants.MIMETYPE_VIDEO_AVC.equals(mime)) {
             throw new InvalidOutputFormatException("Video codecs other than AVC is not supported, actual mime type: " + mime);
         }
-        ByteBuffer spsBuffer = AvcCsdUtils.getSpsBuffer(format);
-        byte profileIdc = AvcSpsUtils.getProfileIdc(spsBuffer);
-        if (profileIdc != PROFILE_IDC_BASELINE) {
-            throw new InvalidOutputFormatException("Non-baseline AVC video profile is not supported by Android OS, actual profile_idc: " + profileIdc);
-        }
+//        ByteBuffer spsBuffer = AvcCsdUtils.getSpsBuffer(format);
+//        byte profileIdc = AvcSpsUtils.getProfileIdc(spsBuffer);
+//        if (profileIdc != PROFILE_IDC_BASELINE) {
+//            throw new InvalidOutputFormatException("Non-baseline AVC video profile is not supported by Android OS, actual profile_idc: " + profileIdc);
+//        }
     }
 
     public static void validateAudioOutputFormat(MediaFormat format) {
