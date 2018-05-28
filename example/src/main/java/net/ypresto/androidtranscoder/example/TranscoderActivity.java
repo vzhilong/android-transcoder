@@ -14,9 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import net.ypresto.androidtranscoder.MediaTranscoder;
-import net.ypresto.androidtranscoder.engine.OutputSurface;
-import net.ypresto.androidtranscoder.engine.OutputSurfaceFactory;
-import net.ypresto.androidtranscoder.engine.OutputSurfaceImpl;
+import net.ypresto.androidtranscoder.format.MediaFormatStrategy;
 import net.ypresto.androidtranscoder.format.MediaFormatStrategyPresets;
 
 import java.io.File;
@@ -61,7 +59,7 @@ public class TranscoderActivity extends Activity {
                         File outputDir = new File(getExternalFilesDir(null), "outputs");
                         //noinspection ResultOfMethodCallIgnored
                         outputDir.mkdir();
-                        file = File.createTempFile("transcode_test", ".mp4", outputDir);
+                        file = File.createTempFile("transcode_test" + System.currentTimeMillis(), ".mp4", outputDir);
                     } catch (IOException e) {
                         Log.e(TAG, "Failed to create temporary file.", e);
                         Toast.makeText(this, "Failed to create temporary file.", Toast.LENGTH_LONG).show();
@@ -113,13 +111,8 @@ public class TranscoderActivity extends Activity {
                     };
                     Log.d(TAG, "transcoding into " + file);
                     mFuture = MediaTranscoder.getInstance().transcodeVideo(fileDescriptor, file.getAbsolutePath(),
-                            MediaFormatStrategyPresets.createAndroid720pStrategy(720 * 1280, 44100, 1),
-                            new OutputSurfaceFactory() {
-                                @Override
-                                public OutputSurface createOutputSurface() {
-                                    return new OutputSurfaceImpl();
-                                }
-                            }, listener);
+                            MediaFormatStrategyPresets.createAndroid720pStrategy(MediaFormatStrategy.VIDEO_AUTO_BIT_RATE, 44100, 1),
+                            listener);
                     switchButtonEnabled(true);
                 }
                 break;

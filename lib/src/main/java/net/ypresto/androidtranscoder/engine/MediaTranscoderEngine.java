@@ -80,7 +80,7 @@ public class MediaTranscoderEngine {
      * @throws InvalidOutputFormatException when output format is not supported.
      * @throws InterruptedException         when cancel to transcode.
      */
-    public void transcodeVideo(String outputPath, MediaFormatStrategy formatStrategy, OutputSurfaceFactory outputSurfaceFactory) throws IOException, InterruptedException {
+    public void transcodeVideo(String outputPath, MediaFormatStrategy formatStrategy) throws IOException, InterruptedException {
         if (outputPath == null) {
             throw new NullPointerException("Output path cannot be null.");
         }
@@ -93,7 +93,7 @@ public class MediaTranscoderEngine {
             mExtractor.setDataSource(mInputFileDescriptor);
             mMuxer = new MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
             setupMetadata();
-            setupTrackTranscoders(formatStrategy, outputSurfaceFactory);
+            setupTrackTranscoders(formatStrategy);
             runPipelines();
             mMuxer.stop();
         } finally {
@@ -149,7 +149,7 @@ public class MediaTranscoderEngine {
         Log.d(TAG, "Duration (us): " + mDurationUs);
     }
 
-    private void setupTrackTranscoders(MediaFormatStrategy formatStrategy, OutputSurfaceFactory outputSurfaceFactory) {
+    private void setupTrackTranscoders(MediaFormatStrategy formatStrategy) {
         MediaExtractorUtils.TrackResult trackResult = MediaExtractorUtils.getFirstVideoAndAudioTrack(mExtractor);
         MediaFormat videoOutputFormat = formatStrategy.createVideoOutputFormat(trackResult.mVideoTrackFormat);
         MediaFormat audioOutputFormat = formatStrategy.createAudioOutputFormat(trackResult.mAudioTrackFormat);
@@ -167,7 +167,7 @@ public class MediaTranscoderEngine {
         if (videoOutputFormat == null) {
             mVideoTrackTranscoder = new PassThroughTrackTranscoder(mExtractor, trackResult.mVideoTrackIndex, queuedMuxer, QueuedMuxer.SampleType.VIDEO);
         } else {
-            mVideoTrackTranscoder = new VideoTrackTranscoder(mExtractor, trackResult.mVideoTrackIndex, videoOutputFormat, queuedMuxer, outputSurfaceFactory);
+            mVideoTrackTranscoder = new VideoTrackTranscoder(mExtractor, trackResult.mVideoTrackIndex, videoOutputFormat, queuedMuxer);
         }
         mVideoTrackTranscoder.setup();
         if (audioOutputFormat == null) {

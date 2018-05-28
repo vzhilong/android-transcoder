@@ -53,13 +53,17 @@ public class VideoTrackTranscoder implements TrackTranscoder {
     private long mWrittenPresentationTimeUs;
 
     public VideoTrackTranscoder(MediaExtractor extractor, int trackIndex,
-                                MediaFormat outputFormat, QueuedMuxer muxer,
-                                OutputSurfaceFactory outputSurfaceFactory) {
+                                MediaFormat outputFormat, QueuedMuxer muxer) {
         mExtractor = extractor;
         mTrackIndex = trackIndex;
         mOutputFormat = outputFormat;
         mMuxer = muxer;
-        mDecoderOutputSurfaceFactory = outputSurfaceFactory;
+        mDecoderOutputSurfaceFactory = new OutputSurfaceFactory() {
+            @Override
+            public OutputSurface createOutputSurface() {
+                return new OutputSurfaceImpl();
+            }
+        };
     }
 
     @Override

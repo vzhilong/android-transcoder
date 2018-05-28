@@ -18,6 +18,8 @@ package net.ypresto.androidtranscoder.format;
 import android.media.MediaFormat;
 
 public interface MediaFormatStrategy {
+    public static final int VIDEO_AUTO_BIT_RATE = -1;
+
     public static final int AUDIO_BITRATE_AS_IS = -1;
     public static final int AUDIO_CHANNELS_AS_IS = -1;
 

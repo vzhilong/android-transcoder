@@ -21,27 +21,4 @@ import junit.framework.TestCase;
 
 public class MediaFormatPresetsTest extends TestCase {
 
-    public void testGetExportPreset960x540() throws Exception {
-        assertNull(MediaFormatPresets.getExportPreset960x540(960, 540));
-        assertNull(MediaFormatPresets.getExportPreset960x540(540, 960));
-        assertNull(MediaFormatPresets.getExportPreset960x540(480, 320));
-        assertWidthAndHeightEquals(MediaFormatPresets.getExportPreset960x540(1024, 768), 960, 720);
-        assertWidthAndHeightEquals(MediaFormatPresets.getExportPreset960x540(768, 1024), 720, 960);
-        assertWidthAndHeightEquals(MediaFormatPresets.getExportPreset960x540(768, 1024), 720, 960);
-        assertWidthAndHeightEquals(MediaFormatPresets.getExportPreset960x540(1920, 1080), 960, 540);
-        assertWidthAndHeightEquals(MediaFormatPresets.getExportPreset960x540(1080, 1920), 540, 960);
-        assertWidthAndHeightEquals(MediaFormatPresets.getExportPreset960x540(1280, 720), 960, 540);
-        assertWidthAndHeightEquals(MediaFormatPresets.getExportPreset960x540(720, 1280), 540, 960);
-        try {
-            MediaFormatPresets.getExportPreset960x540(1024, 769);
-            fail("should throw if indivisible");
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getStackTrace()[0].getClassName().equals(MediaFormatPresets.class.getName()));
-        }
-    }
-
-    private void assertWidthAndHeightEquals(MediaFormat format, int width, int height) throws Exception {
-        assertEquals(width, format.getInteger(MediaFormat.KEY_WIDTH));
-        assertEquals(height, format.getInteger(MediaFormat.KEY_HEIGHT));
-    }
 }

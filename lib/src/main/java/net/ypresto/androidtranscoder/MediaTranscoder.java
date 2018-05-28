@@ -69,37 +69,13 @@ public class MediaTranscoder {
      * Transcodes video file asynchronously.
      * Audio track will be kept unchanged.
      *
-     * @param inFileDescriptor FileDescriptor for input.
-     * @param outPath          File path for output.
-     * @param listener         Listener instance for callback.
-     * @deprecated Use {@link #transcodeVideo(FileDescriptor, String, MediaFormatStrategy, OutputSurfaceFactory, MediaTranscoder.Listener)} which accepts output video format.
-     */
-    @Deprecated
-    public Future<Void> transcodeVideo(final FileDescriptor inFileDescriptor, final String outPath, final OutputSurfaceFactory outputSurfaceFactory, final Listener listener) {
-        return transcodeVideo(inFileDescriptor, outPath, new MediaFormatStrategy() {
-            @Override
-            public MediaFormat createVideoOutputFormat(MediaFormat inputFormat) {
-                return MediaFormatPresets.getExportPreset960x540();
-            }
-
-            @Override
-            public MediaFormat createAudioOutputFormat(MediaFormat inputFormat) {
-                return null;
-            }
-        }, outputSurfaceFactory, listener);
-    }
-
-    /**
-     * Transcodes video file asynchronously.
-     * Audio track will be kept unchanged.
-     *
      * @param inPath            File path for input.
      * @param outPath           File path for output.
      * @param outFormatStrategy Strategy for output video format.
      * @param listener          Listener instance for callback.
      * @throws IOException if input file could not be read.
      */
-    public Future<Void> transcodeVideo(final String inPath, final String outPath, final MediaFormatStrategy outFormatStrategy, final OutputSurfaceFactory outputSurfaceFactory, final Listener listener) throws IOException {
+    public Future<Void> transcodeVideo(final String inPath, final String outPath, final MediaFormatStrategy outFormatStrategy, final Listener listener) throws IOException {
         FileInputStream fileInputStream = null;
         FileDescriptor inFileDescriptor;
         try {
@@ -116,7 +92,7 @@ public class MediaTranscoder {
             throw e;
         }
         final FileInputStream finalFileInputStream = fileInputStream;
-        return transcodeVideo(inFileDescriptor, outPath, outFormatStrategy, outputSurfaceFactory,
+        return transcodeVideo(inFileDescriptor, outPath, outFormatStrategy,
                 new Listener() {
                     @Override
                     public void onTranscodeProgress(double progress) {
@@ -160,7 +136,7 @@ public class MediaTranscoder {
      * @param outFormatStrategy Strategy for output video format.
      * @param listener          Listener instance for callback.
      */
-    public Future<Void> transcodeVideo(final FileDescriptor inFileDescriptor, final String outPath, final MediaFormatStrategy outFormatStrategy, final OutputSurfaceFactory outputSurfaceFactory, final Listener listener) {
+    public Future<Void> transcodeVideo(final FileDescriptor inFileDescriptor, final String outPath, final MediaFormatStrategy outFormatStrategy, final Listener listener) {
         Looper looper = Looper.myLooper();
         if (looper == null) looper = Looper.getMainLooper();
         final Handler handler = new Handler(looper);
@@ -183,7 +159,7 @@ public class MediaTranscoder {
                         }
                     });
                     engine.setDataSource(inFileDescriptor);
-                    engine.transcodeVideo(outPath, outFormatStrategy, outputSurfaceFactory);
+                    engine.transcodeVideo(outPath, outFormatStrategy);
                 } catch (IOException e) {
                     Log.w(TAG, "Transcode failed: input file (fd: " + inFileDescriptor.toString() + ") not found"
                             + " or could not open output file ('" + outPath + "') .", e);
@@ -242,7 +218,7 @@ public class MediaTranscoder {
         /**
          * Called when transcode failed.
          *
-         * @param exception Exception thrown from {@link MediaTranscoderEngine#transcodeVideo(String, MediaFormatStrategy, OutputSurfaceFactory)}.
+         * @param exception Exception thrown from {@link MediaTranscoderEngine#transcodeVideo(String, MediaFormatStrategy)}.
          *                  Note that it IS NOT {@link java.lang.Throwable}. This means {@link java.lang.Error} won't be caught.
          */
         void onTranscodeFailed(Exception exception);

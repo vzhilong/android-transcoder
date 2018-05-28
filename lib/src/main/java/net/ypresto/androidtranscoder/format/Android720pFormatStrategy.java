@@ -20,15 +20,15 @@ import android.media.MediaFormat;
 
 class Android720pFormatStrategy implements MediaFormatStrategy {
     private static final String TAG = "720pFormatStrategy";
-    private static final int LONGER_LENGTH = 1280;
-    private static final int SHORTER_LENGTH = 720;
-    private static final int DEFAULT_VIDEO_BITRATE = 8000 * 1000; // From Nexus 4 Camera in 720p
+
+    private static final int LENGTH_LIMIT = 1280;
+
     private final int mVideoBitrate;
     private final int mAudioBitrate;
     private final int mAudioChannels;
 
     public Android720pFormatStrategy() {
-        this(DEFAULT_VIDEO_BITRATE);
+        this(VIDEO_AUTO_BIT_RATE);
     }
 
     public Android720pFormatStrategy(int videoBitrate) {
@@ -45,17 +45,23 @@ class Android720pFormatStrategy implements MediaFormatStrategy {
     public MediaFormat createVideoOutputFormat(MediaFormat inputFormat) {
         int width = inputFormat.getInteger(MediaFormat.KEY_WIDTH);
         int height = inputFormat.getInteger(MediaFormat.KEY_HEIGHT);
+
         int outWidth, outHeight;
-        if (width >= height) {
-            outWidth = LONGER_LENGTH;
-            outHeight = SHORTER_LENGTH;
+        if (Math.max(width, height) < LENGTH_LIMIT) {
+            outWidth = width;
+            outHeight = height;
         } else {
-            outWidth = SHORTER_LENGTH;
-            outHeight = LONGER_LENGTH;
+            outWidth = width * LENGTH_LIMIT / Math.max(width, height);
+            outHeight = height * LENGTH_LIMIT / Math.max(width, height);
         }
 
         MediaFormat format = MediaFormat.createVideoFormat("video/avc", outWidth, outHeight);
-        format.setInteger(MediaFormat.KEY_BIT_RATE, mVideoBitrate);
+        int bitRate = mVideoBitrate;
+        if (mVideoBitrate == VIDEO_AUTO_BIT_RATE) {
+            bitRate = outWidth * outHeight * 2;
+        }
+
+        format.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
         format.setInteger(MediaFormat.KEY_FRAME_RATE, 24);
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
